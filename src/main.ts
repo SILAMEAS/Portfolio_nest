@@ -6,12 +6,13 @@ import * as process from 'process';
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix("/api");
   app.useGlobalPipes(new ValidationPipe({
     transform:true,
     whitelist:true
   }));
   const config = new DocumentBuilder()
-    .setTitle('Api Application')
+    .setTitle('Portfolio')
     .setDescription('')
     .setVersion('1.0')
     .addTag('')

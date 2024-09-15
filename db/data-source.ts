@@ -14,6 +14,7 @@ export const dataSourceOptions:DataSourceOptions={
   synchronize: true,
   ssl:true
 }
+
 const dataSource=new DataSource(dataSourceOptions);
 export default dataSource
 
