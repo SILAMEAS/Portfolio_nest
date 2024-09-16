@@ -7,6 +7,12 @@ export class ProfileEntity {
     id: number;
     @Column()
     @ApiProperty()
+    label:string;
+    @Column()
+    @ApiProperty()
+    mainLabel:string;
+    @Column()
+    @ApiProperty()
     title:string;
     @Column()
     @ApiProperty()

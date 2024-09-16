@@ -2,6 +2,14 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsString } from "class-validator";
 
 export class CreateProfileDto {
+    @ApiProperty({ example: 'Sila', description: 'The label of the profile' })
+    @IsNotEmpty({message:"label cannot be empty"})
+    @IsString({message:"label cannot be empty"})
+    label:string;
+    @ApiProperty({ example: 'Developer', description: 'The mainLabel of the profile' })
+    @IsNotEmpty({message:"mainLabel cannot be empty"})
+    @IsString({message:"mainLabel cannot be empty"})
+    mainLabel:string;
     @ApiProperty({ example: 'Make anything possible with', description: 'The title of the profile' })
     @IsNotEmpty({message:"title cannot be empty"})
     @IsString({message:"title cannot be empty"})
