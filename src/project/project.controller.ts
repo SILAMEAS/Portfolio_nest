@@ -36,9 +36,10 @@ export class ProjectController {
       },
     },
   })
-  async create(@UploadedFile() image: Express.Multer.File,@Body() createProjectDto: CreateProjectDto) {
+  async create(@UploadedFile() image: Express.Multer.File,@Body() body) {
     try {
-      return await this.projectService.create(image,createProjectDto);
+      return await this.projectService.create(image,body);
+      // return body;
     }catch (e){
       throw new Error(e);
     }

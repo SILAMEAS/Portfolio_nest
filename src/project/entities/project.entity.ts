@@ -1,6 +1,7 @@
-import {Column, Entity} from "typeorm";
+import {Column, Entity, JoinColumn, OneToOne} from "typeorm";
 import {AbstractEntity} from "../../utils/abstract/AbstractEntity";
 import {ApiProperty} from "@nestjs/swagger";
+import {ImageProjectEntity} from "./image.entity";
 
 @Entity("project")
 export class ProjectEntity extends AbstractEntity{
@@ -9,14 +10,11 @@ export class ProjectEntity extends AbstractEntity{
     title:string;
     @Column()
     @ApiProperty()
-        // text -> description
     description:string;
     @Column()
     @ApiProperty()
-        // src -> image
-    image:string;
-    @Column()
-    @ApiProperty()
-        // url -> link
     link:string;
+    @OneToOne(() => ImageProjectEntity, (image) => image.project, { cascade: true })
+    @JoinColumn() // Only necessary on one side of the relationship (typically the owning side)
+    image: ImageProjectEntity;
 }
