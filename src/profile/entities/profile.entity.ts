@@ -1,10 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {ApiProperty} from "@nestjs/swagger";
+import {Column, Entity} from "typeorm";
+import {AbstractEntity} from "../../utils/abstract/AbstractEntity";
 
 @Entity("profile")
-export class ProfileEntity {
-    @PrimaryGeneratedColumn()
-    id: number;
+export class ProfileEntity extends AbstractEntity{
     @Column()
     @ApiProperty()
     label:string;

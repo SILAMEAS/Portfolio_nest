@@ -7,6 +7,7 @@ import { GlobalStateModule } from './global/global.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { ProfileModule } from './profile/profile.module';
+import { ProjectModule } from './project/project.module';
 
 @Module({
   imports: [GlobalStateModule,TypeOrmModule.forRoot(dataSourceOptions),
@@ -15,7 +16,8 @@ import { ProfileModule } from './profile/profile.module';
     { name: 'long', ttl: 60000, limit: 100 },
   ]),
      CloudinaryModule,
-     ProfileModule
+     ProfileModule,
+     ProjectModule
      ],
   controllers: [],
   providers: [

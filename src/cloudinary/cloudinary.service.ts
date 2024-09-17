@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { UploadApiErrorResponse, UploadApiResponse,v2 } from "cloudinary";
+import {Injectable} from '@nestjs/common';
+import {v2} from "cloudinary";
 import * as streamifier from 'streamifier';
-import { ResponseCloudinary } from './dto/cloudinary-response';
+import {ResponseCloudinary} from './dto/cloudinary-response';
 
 @Injectable()
 export class CloudinaryService {
@@ -18,5 +18,15 @@ export class CloudinaryService {
       return uploadRes;
     }else
     return null
+  }
+  async deleteImage(publicId: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      v2.uploader.destroy(publicId, (error, result) => {
+        if (error) {
+          reject(error);
+        }
+        resolve(result);
+      });
+    });
   }
 }
