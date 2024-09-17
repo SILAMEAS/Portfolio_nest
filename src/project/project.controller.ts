@@ -1,9 +1,8 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile} from '@nestjs/common';
-import { ProjectService } from './project.service';
-import { CreateProjectDto } from './dto/create-project.dto';
-import { UpdateProjectDto } from './dto/update-project.dto';
+import {Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors} from '@nestjs/common';
+import {ProjectService} from './project.service';
+import {CreateProjectDto} from './dto/create-project.dto';
+import {UpdateProjectDto} from './dto/update-project.dto';
 import {ApiBody, ApiConsumes, ApiTags} from "@nestjs/swagger";
-import {CloudinaryService} from "../cloudinary/cloudinary.service";
 import {FileInterceptor} from "@nestjs/platform-express";
 
 @Controller('project')
@@ -22,11 +21,27 @@ export class ProjectController {
           type: 'string',
           format: 'binary',
         },
+        title:{
+          type:'string',
+          example:"title of project"
+        },
+        description:{
+          type:'string',
+          example:"description of project"
+        },
+        link:{
+          type:'string',
+          example:"link of project"
+        }
       },
     },
   })
-  create(@UploadedFile() image: Express.Multer.File,@Body() createProjectDto: CreateProjectDto) {
-    return this.projectService.create(image,createProjectDto);
+  async create(@UploadedFile() image: Express.Multer.File,@Body() createProjectDto: CreateProjectDto) {
+    try {
+      return await this.projectService.create(image,createProjectDto);
+    }catch (e){
+      throw new Error(e);
+    }
   }
 
   @Get()

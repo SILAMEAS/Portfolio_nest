@@ -8,6 +8,6 @@ import {CloudinaryModule} from "../cloudinary/cloudinary.module";
 @Module({
   imports:[TypeOrmModule.forFeature([ProjectEntity]),CloudinaryModule],
   controllers: [ProjectController],
-  providers: [ProjectService],
+  providers: [ProjectService]
 })
 export class ProjectModule {}
