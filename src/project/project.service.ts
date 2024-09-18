@@ -38,7 +38,9 @@ export class ProjectService {
   }
 
   findAll() {
-    return `This action returns all project`;
+    return this.projectEntityRepository.find({
+        relations: ['image']
+    })
   }
 
   findOne(id: number) {
