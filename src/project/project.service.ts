@@ -18,6 +18,7 @@ export class ProjectService {
     ) {}
   async create(image: Express.Multer.File,createProjectDto: CreateProjectDto) {
    try {
+       console.log(image)
        const uploaded:any=await this.cloudinaryService.uploadImage(image);
        if(uploaded){
            const image = this.imageRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
@@ -44,14 +45,15 @@ export class ProjectService {
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} project`;
+    return this.projectEntityRepository.findOne({where:{id},relations: ['image']})
   }
 
   update(id: number, updateProjectDto: UpdateProjectDto) {
     return `This action updates a #${id} project`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} project`;
+  async remove(id: number) {
+     await this.projectEntityRepository.delete(+id);
+      return this.findAll();
   }
 }
