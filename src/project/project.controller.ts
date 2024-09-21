@@ -1,4 +1,15 @@
-import {Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseInterceptors} from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UploadedFile,
+  UseInterceptors
+} from '@nestjs/common';
 import {ProjectService} from './project.service';
 import {CreateProjectDto} from './dto/create-project.dto';
 import {UpdateProjectDto} from './dto/update-project.dto';
@@ -37,12 +48,10 @@ export class ProjectController {
     },
   })
   async create(@UploadedFile() image: Express.Multer.File,@Body() body) {
-    try {
+    console.log(image)
+    if(image&&body)
       return await this.projectService.create(image,body);
-      // return body;
-    }catch (e){
-      throw new Error(e);
-    }
+    else throw new BadRequestException("Image is required")
   }
 
   @Get()
@@ -51,21 +60,21 @@ export class ProjectController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.projectService.findOne(+id);
+   async findOne(@Param('id') id: string) {
+    return await this.projectService.findOne(+id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProjectDto: UpdateProjectDto) {
     return this.projectService.update(+id, updateProjectDto);
   }
-
+  /** all project all image_project all image in server on cloudinary */
+  @Delete("/all")
+  removeAll() {
+    return this.projectService.removeAll();
+  }
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectService.remove(+id);
   }
-  // @Delete('/image/:publicId')
-  // async deleteImage(@Param('publicId') publicId: string) {
-  //   return this.cloudinaryService.deleteImage(publicId);
-  // }
 }
