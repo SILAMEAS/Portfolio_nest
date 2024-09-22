@@ -6,7 +6,6 @@ import {Repository} from "typeorm";
 import {ProjectEntity} from "./entities/project.entity";
 import {CloudinaryService} from "../cloudinary/cloudinary.service";
 import {ImageProjectEntity} from "./entities/image.entity";
-import {raw} from "express";
 
 @Injectable()
 export class ProjectService {
@@ -19,7 +18,6 @@ export class ProjectService {
     ) {}
   async create(image: Express.Multer.File,createProjectDto: CreateProjectDto) {
    try {
-       console.log(image)
        const uploaded:any=await this.cloudinaryService.uploadImage(image);
        if(uploaded){
            const image = this.imageProjectEntityRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
@@ -46,13 +44,60 @@ export class ProjectService {
   }
 
   async findOne(id: number) {
-        const found=await this.projectEntityRepository.findOne({where:{id},relations: ['image']});
-        if(!found) throw new BadRequestException('not found project with this id');
-        else return this.projectEntityRepository.findOne({where:{id},relations: ['image']})
+        const found=await this.projectEntityRepository.findOne({where:{id},relations: ['image']})
+        if(found){
+            return found;
+        }
+      throw new BadRequestException('User not found');
   }
 
-  update(id: number, updateProjectDto: UpdateProjectDto) {
-    return `This action updates a #${id} project`;
+  async update(id: number, updateProjectDto: UpdateProjectDto,image: Express.Multer.File) {
+      const found=await this.findOne(+id);
+      if(image){
+          try {
+              /** upload new image */
+              const uploaded:any=await this.cloudinaryService.uploadImage(image);
+              /** if upload new image success*/
+              if(uploaded){
+                  /** after upload already to cloudinary create this image in table img project */
+                  const createImgUploaded = this.imageProjectEntityRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
+                  /** save to table img project */
+                  await this.imageProjectEntityRepository.save(createImgUploaded);
+                  /** delete old image*/
+                  await this.imageProjectEntityRepository.delete(found.image.public_id)
+                  /** update data in table project */
+                  try {
+                      await this.projectEntityRepository
+                          .createQueryBuilder()
+                          .update('project')
+                          .set({...found,title:updateProjectDto.title,link:updateProjectDto.link,description:updateProjectDto.description,image:createImgUploaded})
+                          .where("id = :id", {id: id})
+                          .execute()
+
+                      return await this.findOne(id);
+                  }catch (e){
+                      return  new Error("update project error : "+e);
+                  }
+              }
+          }catch (e){
+              return  new BadRequestException('uploading image failed');
+          }
+
+      }else {
+          /** update data in table project */
+          try {
+              await this.projectEntityRepository
+                  .createQueryBuilder()
+                  .update('project')
+                  .set({...found,title:updateProjectDto.title,link:updateProjectDto.link,description:updateProjectDto.description})
+                  .where("id = :id", {id: id})
+                  .execute()
+
+              return await this.findOne(id);
+          }catch (e){
+              throw new Error("update project error : "+e);
+          }
+      }
   }
 
   async remove(id: number) {
