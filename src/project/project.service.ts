@@ -6,7 +6,6 @@ import {Repository} from "typeorm";
 import {ProjectEntity} from "./entities/project.entity";
 import {CloudinaryService} from "../cloudinary/cloudinary.service";
 import {ImageProjectEntity} from "./entities/image.entity";
-import {raw} from "express";
 
 @Injectable()
 export class ProjectService {
@@ -14,7 +13,7 @@ export class ProjectService {
         @InjectRepository(ProjectEntity)
         private projectEntityRepository: Repository<ProjectEntity>,
         @InjectRepository(ImageProjectEntity)
-        private imageProjectEntityRepository: Repository<ImageProjectEntity>,
+        private imageRepository: Repository<ImageProjectEntity>,
         private cloudinaryService:CloudinaryService
     ) {}
   async create(image: Express.Multer.File,createProjectDto: CreateProjectDto) {
@@ -22,8 +21,8 @@ export class ProjectService {
        console.log(image)
        const uploaded:any=await this.cloudinaryService.uploadImage(image);
        if(uploaded){
-           const image = this.imageProjectEntityRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
-           await this.imageProjectEntityRepository.save(image);
+           const image = this.imageRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
+           await this.imageRepository.save(image);
 
            const profile = this.projectEntityRepository.create({
                ...createProjectDto,
@@ -35,7 +34,7 @@ export class ProjectService {
        }
 
    }catch (e){
-     throw new Error(e)
+     throw new Error(""+e)
    }
   }
 
@@ -45,10 +44,8 @@ export class ProjectService {
     })
   }
 
-  async findOne(id: number) {
-        const found=await this.projectEntityRepository.findOne({where:{id},relations: ['image']});
-        if(!found) throw new BadRequestException('not found project with this id');
-        else return this.projectEntityRepository.findOne({where:{id},relations: ['image']})
+  findOne(id: number) {
+    return this.projectEntityRepository.findOne({where:{id},relations: ['image']})
   }
 
   update(id: number, updateProjectDto: UpdateProjectDto) {
@@ -56,19 +53,7 @@ export class ProjectService {
   }
 
   async remove(id: number) {
-        await this.findOne(id);
      await this.projectEntityRepository.delete(+id);
       return this.findAll();
   }
-  async removeAll() {
-      const images = await this.imageProjectEntityRepository.find();
-      if (images.length === 0) {
-          throw new Error('No images found');
-      }
-      const publicIds = images.map(image => image.public_id);
-      await this.projectEntityRepository.delete({});
-      await this.cloudinaryService.deleteMultipleImages(publicIds);
-      await this.imageProjectEntityRepository.delete({});
-        return this.findAll();
-    }
 }
