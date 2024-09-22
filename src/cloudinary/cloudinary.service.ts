@@ -29,4 +29,13 @@ export class CloudinaryService {
       });
     });
   }
+  // Optional: If you want to delete multiple images at once
+  async deleteMultipleImages(publicIds: string[]): Promise<void> {
+    return new Promise((resolve, reject) => {
+      v2.api.delete_resources(publicIds, (error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      });
+    });
+  }
 }
