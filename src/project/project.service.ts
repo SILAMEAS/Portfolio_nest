@@ -48,55 +48,40 @@ export class ProjectService {
         if(found){
             return found;
         }
-      throw new BadRequestException('User not found');
+      throw new BadRequestException('project not found');
   }
+ async updateProject(id:number,updateProjectDto:UpdateProjectDto){
+     try {
+         await this.projectEntityRepository.update(id, {title:updateProjectDto.title,link:updateProjectDto.title,description:updateProjectDto.description});
+         return await this.findOne(id);
+     }catch (e){
+         throw new Error("updateProject : "+e);
+     }
+ }
 
   async update(id: number, updateProjectDto: UpdateProjectDto,image: Express.Multer.File) {
-      const found=await this.findOne(+id);
+      const found = await this.findOne(+id);
       if(image){
           try {
-              /** upload new image */
               const uploaded:any=await this.cloudinaryService.uploadImage(image);
-              /** if upload new image success*/
               if(uploaded){
-                  /** after upload already to cloudinary create this image in table img project */
-                  const createImgUploaded = this.imageProjectEntityRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
-                  /** save to table img project */
-                  await this.imageProjectEntityRepository.save(createImgUploaded);
-                  /** delete old image*/
-                  await this.imageProjectEntityRepository.delete(found.image.public_id)
-                  /** update data in table project */
-                  try {
-                      await this.projectEntityRepository
-                          .createQueryBuilder()
-                          .update('project')
-                          .set({...found,title:updateProjectDto.title,link:updateProjectDto.link,description:updateProjectDto.description,image:createImgUploaded})
-                          .where("id = :id", {id: id})
-                          .execute()
-
-                      return await this.findOne(id);
-                  }catch (e){
-                      return  new Error("update project error : "+e);
-                  }
+                  const imageAfterUpload = this.imageProjectEntityRepository.create({public_id:uploaded?.public_id, url: uploaded?.url,format:uploaded?.format });
+                  await this.imageProjectEntityRepository.save(imageAfterUpload);
+                  await this.projectEntityRepository.update(id, {
+                      ...updateProjectDto,
+                      image: imageAfterUpload,
+                  });
+                  await this.cloudinaryService.deleteImage(found.image.public_id);
+                  return await this.findOne(id);
+              }else {
+                  return  new BadRequestException('uploading image failed');
               }
-          }catch (e){
-              return  new BadRequestException('uploading image failed');
-          }
 
+          }catch (e){
+              throw new Error(" uploadToCloudinarySaveDB : "+e)
+          }
       }else {
-          /** update data in table project */
-          try {
-              await this.projectEntityRepository
-                  .createQueryBuilder()
-                  .update('project')
-                  .set({...found,title:updateProjectDto.title,link:updateProjectDto.link,description:updateProjectDto.description})
-                  .where("id = :id", {id: id})
-                  .execute()
-
-              return await this.findOne(id);
-          }catch (e){
-              throw new Error("update project error : "+e);
-          }
+          await this.updateProject(id,updateProjectDto);
       }
   }
 
