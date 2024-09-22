@@ -90,13 +90,13 @@ export class ProjectController {
   async update(@Param('id') id: string,@UploadedFile() image: Express.Multer.File,@Body() body:any) {
     return await this.projectService.update(+id, body,image);
   }
-
+  /** all project all image_project all image in server on cloudinary */
+  @Delete("/all")
+  removeAll() {
+    return this.projectService.removeAll();
+  }
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.projectService.remove(+id);
   }
-  // @Delete('/image/:publicId')
-  // async deleteImage(@Param('publicId') publicId: string) {
-  //   return this.cloudinaryService.deleteImage(publicId);
-  // }
 }
