@@ -33,7 +33,7 @@ export class ProjectService {
        }
 
    }catch (e){
-     throw new Error(""+e)
+     throw new Error("create project error "+e)
    }
   }
 
@@ -52,7 +52,7 @@ export class ProjectService {
   }
  async updateProject(id:number,updateProjectDto:UpdateProjectDto){
      try {
-         await this.projectEntityRepository.update(id, {title:updateProjectDto.title,link:updateProjectDto.title,description:updateProjectDto.description});
+         await this.projectEntityRepository.update(id, updateProjectDto);
          return await this.findOne(id);
      }catch (e){
          throw new Error("updateProject : "+e);
@@ -80,14 +80,19 @@ export class ProjectService {
           }catch (e){
               throw new Error(" uploadToCloudinarySaveDB : "+e)
           }
-      }else {
-          await this.updateProject(id,updateProjectDto);
       }
+          await this.updateProject(id,{
+              title:updateProjectDto.title,
+              link:updateProjectDto.link,
+              description:updateProjectDto.description
+          });
+      return await this.findOne(id);
   }
 
   async remove(id: number) {
-        await this.findOne(id);
-     await this.projectEntityRepository.delete(+id);
+      const found=   await this.findOne(id);
+      await this.projectEntityRepository.delete(+id);
+      await this.cloudinaryService.deleteImage(found.image.public_id);
       return this.findAll();
   }
   async removeAll() {

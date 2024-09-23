@@ -8,6 +8,7 @@ import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { ProfileModule } from './profile/profile.module';
 import { ProjectModule } from './project/project.module';
 import { dataSourceOptions } from 'db/data-source';
+import { SkillModule } from './skill/skill.module';
 
 
 @Module({
@@ -18,7 +19,8 @@ import { dataSourceOptions } from 'db/data-source';
   ]),
      CloudinaryModule,
      ProfileModule,
-     ProjectModule
+     ProjectModule,
+     SkillModule
      ],
   controllers: [],
   providers: [
